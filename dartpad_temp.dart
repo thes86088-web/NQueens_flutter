@@ -21,14 +21,33 @@ class MainApp extends StatelessWidget {
 	}
 }
 
+class Cell extends StatefulWidget{
+  const Cell({super.key});
+  
+  @override
+  State<Cell> createState() => _CellState();
+}
+
+class _CellState extends State<CounterWidget> {
+  String _state; //DEFAULT, WITHQUEEN, ATTACKALE
+  
+  Color decodeState( String state ){
+    Color result = Colors.white ;
+    
+    return result;
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container( color : decodeState(_state) ); 
+}
+
 class Canvas extends StatelessWidget{
     final int canvasSize;
     
     Canvas( this.canvasSize, {
         super.key }
     )
-  
-   
   
     @override
     Widget build( BuildContext context ){
@@ -46,4 +65,5 @@ class Canvas extends StatelessWidget{
     }
 	}
 }
+
 
