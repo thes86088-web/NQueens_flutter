@@ -40,7 +40,7 @@ class _CellState extends State<Cell> {
     Color result = Colors.white ;
     
     if( state == 'WITHQUEEN' ){
-      //result = (isPlaced  ? Colors.white : Colors.green) ;
+      result = Colors.green ;
     }
     else{
       if( state == 'ATTACKABLE' ){
@@ -56,7 +56,18 @@ class _CellState extends State<Cell> {
     return Container( 
       color : decodeState(state),
       child : GestureDetector(
-        onTap : () { setState( () { state = 'WITHQUEEN'; /*isPlaced = true ; */}); } 
+        onTap : () { 
+          setState( () { 
+            state = (state == 'WITHQUEEN') ? 'DEFAULT' : 'WITHQUEEN' ;
+            /*if( state == 'WITHQUEEN' ){
+              state = 'DEFAULT' ;
+            }
+            else {
+              state = 'WITHQUEEN';
+              
+            }*/
+          }); 
+        } 
       )                  
    ); 
 }
