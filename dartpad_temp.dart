@@ -1,167 +1,181 @@
 import 'package:flutter/material.dart';
 
 void main() {
-	runApp(MainApp());
+  runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
-	const MainApp({super.key});
+  const MainApp({super.key});
 
-	@override
-	Widget build(BuildContext context) {
-		return MaterialApp(
-		           home: Scaffold(
-		               body:  Center(
-                     //child : Expanded (
-                       child: Canvas(8)                      
-                     //)	                   
-		               )
-		            ),
-		       );
-	}
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Canvas(8),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class CellData {
-  CellData(this.row, this.col, this.stateString /*this.canvasSize*/);
- 
-  final int row ;
-  final int col ;
-  String stateString ;
+  CellData(this.row, this.col, this.stateString);
+  final int row;
+  final int col;
+  String stateString; // 'D' = default, 'Q' = queen, 'A' = attackable
 }
 
-class Cell extends StatefulWidget{
-  Cell(this.cellData, this.triggerChanges, /*this.canvasSize,*/{super.key});
- 
+class Cell extends StatelessWidget {
+  const Cell(this.cellData, this.onTap, {super.key});
+
   final CellData cellData;
-  final void Function( int, int ) triggerChanges ;
-  @override
-  State<Cell> createState() => _CellState();
-}
+  final VoidCallback onTap;
 
-class _CellState extends State<Cell> {
-  //String state = 'D' ;
-  //String state = widget.cellData.state_string; //DEFAULT, WITHQUEEN, ATTACKALE
-  bool isPlaced = false ;
-  
-  Color decodeState( String state ){
-    Color result = Colors.yellow ;
-    /*when same color is repeated, 
-    try adding a new color at either place 
-    to test/ensure proper logic
-    */
-    
-    if( state == 'Q' ){
-      result = Colors.green ;
+  Color _decodeState(String state) {
+    switch (state) {
+      case 'Q':
+        return Colors.green;
+      case 'A':
+        return Colors.lime;
+      default:
+        return Colors.yellow.shade200;
     }
-    else{
-      if( state == 'A' ){
-        result = Colors.lime ;
-      }
-      //else {result = Colors.white ; }
-    }
-    return result;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container( 
-      //color : decodeState(state), 
-      decoration: BoxDecoration(
-          color: decodeState( widget.cellData.stateString ),
-          border: Border.all(color: Colors.grey.shade400, width: 0.5)
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _decodeState(cellData.stateString),
+          border: Border.all(color: Colors.black, width: 0.5),
         ),
-      child : GestureDetector(
-        onTap : () { 
-          widget.triggerChanges( widget.cellData.row, widget.cellData.col );
-          setState( () { 
-            widget.cellData.stateString = 
-            ( widget.cellData.stateString == 'Q') ? 'D' : 'Q' ;
-           }
-         ); 
-        } 
-      )                  
-   ); 
-}
-}
-
-
-class Canvas extends StatefulWidget{
-    final int canvasSize;
-  
-    Canvas( this.canvasSize, {
-        super.key }
+      ),
     );
-      
-    @override
-    State<Canvas> createState( ) => _CanvasState( );
+  }
 }
 
-class _CanvasState extends State<Canvas>{
-  late List<List<CellData>> canvasData ;
-  
+class Canvas extends StatefulWidget {
+  const Canvas(this.canvasSize, {super.key});
+  final int canvasSize;
+
+  @override
+  State<Canvas> createState() => _CanvasState();
+}
+
+class _CanvasState extends State<Canvas> {
+  late List<List<CellData>> canvasData;
+
   @override
   void initState() {
     super.initState();
     canvasData = _initCanvas();
   }
-   
-  List<List<CellData>> _initCanvas( ){
-    List<List<CellData>> result = [];
-    for( var row = 0; row < widget.canvasSize; row++  ){
-      List<CellData> tempRow = [];
-      for( var col = 0; col < widget.canvasSize; col++  ){
-        tempRow.add( CellData( row, col, 'D' ) );
-      }
-      result.add( tempRow );
-    }
-    return result ;
-  } 
-  
-  void highlightAttackableCells( int epicenterRow, int epicenterCol ){
-    List<List<CellData>> newCanvasData = [];
-    for( int row = 0; row < widget.canvasSize ; row++ ){
-      List<CellData> newTempRow = [];
-      for( int col = 0; col < widget.canvasSize; col++ ){
-        CellData tempCellData = CellData( row, col, 'D' );
-        if( canvasData[row][col].stateString == 'D' ){
-           if( row == epicenterRow || col == epicenterCol ) {
-             tempCellData.stateString = 'A' ;
-             //newCanvasData[row][col].stateString = 'A'; 
-           }
-        }
-        else{
-          if( canvasData[row][col].stateString == 'Q' ){
-            tempCellData.stateString = 'Q' ;
-          }
-        }
-        newTempRow.add( tempCellData );
-      }
-      newCanvasData.add( newTempRow );
-    }
-    setState( (){ canvasData = newCanvasData ; } );
-  } 
 
-    @override
-    Widget build( BuildContext context ){
-      List< Row > columnChildren = [];
-      for( var row = 0; row < widget.canvasSize; row++  ){
-        //List< Row > tempRowChildren = [];
-        List< Cell > tempRowChildren = [];
-        for( var col = 0; col < widget.canvasSize; col++  ){
-          /*
-            Row cellBlock = Row(
-              children : [ SizedBox( width : 10 ), Cell( canvas[row][col] )] 
-            );
-           */
-          tempRowChildren.add( Cell( canvasData[row][col], 
-                                    highlightAttackableCells ) ) ;
-        }
-        Row tempRow = Row( children : tempRowChildren );
-        columnChildren.add( tempRow ) ;
-      }
-     return Column( children : columnChildren ) ;
+  List<List<CellData>> _initCanvas() {
+    return List.generate(
+      widget.canvasSize,
+      (row) => List.generate(
+        widget.canvasSize,
+        (col) => CellData(row, col, 'D'),
+      ),
+    );
   }
 
+  /// Clears all 'A' marks, then (optionally) highlights attacks from every queen.
+  void _recomputeAttacks() {
+    // 1. Reset every non-queen cell to 'D'
+    for (final row in canvasData) {
+      for (final cell in row) {
+        if (cell.stateString != 'Q') cell.stateString = 'D';
+      }
+    }
+
+    // 2. For every queen, mark its attack lines
+    for (int r = 0; r < widget.canvasSize; r++) {
+      for (int c = 0; c < widget.canvasSize; c++) {
+        if (canvasData[r][c].stateString == 'Q') {
+          _markAttacksFrom(r, c);
+        }
+      }
+    }
+  }
+
+  void _markAttacksFrom(int epicenterRow, int epicenterCol) {
+    final n = widget.canvasSize;
+
+    // Same row
+    for (int c = 0; c < n; c++) {
+      if (c != epicenterCol && canvasData[epicenterRow][c].stateString == 'D') {
+        canvasData[epicenterRow][c].stateString = 'A';
+      }
+    }
+
+    // Same column
+    for (int r = 0; r < n; r++) {
+      if (r != epicenterRow && canvasData[r][epicenterCol].stateString == 'D') {
+        canvasData[r][epicenterCol].stateString = 'A';
+      }
+    }
+
+    // Diagonals
+    for (int i = 1; i < n; i++) {
+      // ↘
+      if (epicenterRow + i < n && epicenterCol + i < n &&
+          canvasData[epicenterRow + i][epicenterCol + i].stateString == 'D') {
+        canvasData[epicenterRow + i][epicenterCol + i].stateString = 'A';
+      }
+      // ↙
+      if (epicenterRow + i < n && epicenterCol - i >= 0 &&
+          canvasData[epicenterRow + i][epicenterCol - i].stateString == 'D') {
+        canvasData[epicenterRow + i][epicenterCol - i].stateString = 'A';
+      }
+      // ↗
+      if (epicenterRow - i >= 0 && epicenterCol + i < n &&
+          canvasData[epicenterRow - i][epicenterCol + i].stateString == 'D') {
+        canvasData[epicenterRow - i][epicenterCol + i].stateString = 'A';
+      }
+      // ↖
+      if (epicenterRow - i >= 0 && epicenterCol - i >= 0 &&
+          canvasData[epicenterRow - i][epicenterCol - i].stateString == 'D') {
+        canvasData[epicenterRow - i][epicenterCol - i].stateString = 'A';
+      }
+    }
+  }
+
+  void _onCellTapped(int row, int col) {
+    setState(() {
+      final cell = canvasData[row][col];
+      cell.stateString = (cell.stateString == 'Q') ? 'D' : 'Q';
+      _recomputeAttacks();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(widget.canvasSize, (row) {
+        return Expanded(
+          child: Row(
+            children: List.generate(widget.canvasSize, (col) {
+              return Expanded(
+                child: Cell(
+                  canvasData[row][col],
+                  () => _onCellTapped(row, col),
+                ),
+              );
+            }),
+          ),
+        );
+      }),
+    );
+  }
 }
-
-
