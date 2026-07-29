@@ -58,7 +58,11 @@ class _CellState extends State<Cell> {
   @override
   Widget build(BuildContext context) {
     return Container( 
-      color : decodeState(state),
+      //color : decodeState(state), 
+      decoration: BoxDecoration(
+          color: decodeState(state),
+          border: Border.all(color: Colors.grey.shade400, width: 0.5)
+        ),
       child : GestureDetector(
         onTap : () { 
           setState( () { 
@@ -76,7 +80,7 @@ class Canvas extends StatefulWidget{
   
     Canvas( this.canvasSize, {
         super.key }
-    )
+    );
       
     @override
     State<Canvas> createState( ) => _CanvasState( );
@@ -107,12 +111,15 @@ class _CanvasState extends State<Canvas>{
     Widget build( BuildContext context ){
       List< Row > columnChildren = [];
       for( var row = 0; row < widget.canvasSize; row++  ){
-        List< Row > tempRowChildren = [];
+        //List< Row > tempRowChildren = [];
+        List< Cell > tempRowChildren = [];
         for( var col = 0; col < widget.canvasSize; col++  ){
-          Row cellBlock = Row(
+          /*
+            Row cellBlock = Row(
               children : [ SizedBox( width : 10 ), Cell( canvas[row][col] )] 
             );
-          tempRowChildren.add( cellBlock ) ;
+           */
+          tempRowChildren.add( Cell( canvas[row][col] ) ) ;
         }
         Row tempRow = Row( children : tempRowChildren );
         columnChildren.add( tempRow ) ;
