@@ -13,8 +13,8 @@ class MainApp extends StatelessWidget {
 		           home: Scaffold(
 		               body:  Center(
                      child : Expanded (
-                       child: Canvas(8)
-                        )	                   
+                       child: Cell()                       
+                     )	                   
 		               )
 		            ),
 		       );
@@ -22,26 +22,47 @@ class MainApp extends StatelessWidget {
 }
 
 class Cell extends StatefulWidget{
-  const Cell({super.key});
-  
+  Cell(/*this.row, this.col, this.canvasSize, */{super.key});
+ /* 
+  final int row ;
+  final int col ;
+  final int canvasSize ;
+*/  
   @override
   State<Cell> createState() => _CellState();
 }
 
-class _CellState extends State<CounterWidget> {
-  String _state; //DEFAULT, WITHQUEEN, ATTACKALE
+class _CellState extends State<Cell> {
+  String state = 'DEFAULT'; //DEFAULT, WITHQUEEN, ATTACKALE
+  bool isPlaced = false ;
   
   Color decodeState( String state ){
     Color result = Colors.white ;
     
+    if( state == 'WITHQUEEN' ){
+      //result = (isPlaced  ? Colors.white : Colors.green) ;
+    }
+    else{
+      if( state == 'ATTACKABLE' ){
+        result = Colors.lime ;
+      }
+      else {result = Colors.white ; }
+    }
     return result;
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    return Container( color : decodeState(_state) ); 
+    return Container( 
+      color : decodeState(state),
+      child : GestureDetector(
+        onTap : () { setState( () { state = 'WITHQUEEN'; /*isPlaced = true ; */}); } 
+      )                  
+   ); 
+}
 }
 
+/*
 class Canvas extends StatelessWidget{
     final int canvasSize;
     
@@ -51,19 +72,18 @@ class Canvas extends StatelessWidget{
   
     @override
     Widget build( BuildContext context ){
-      List<Row> listOfRows = [ ];
+      List<List<Cell>> listOfRows = [ ];
       for( var rowCount = 0; rowCount<canvasSize; rowCount++ ){
         List<Cell> listOfCells = [ ];
-        for( var cellCount = 0; cellCount<canvasSize; cellCount++ ){
-          Cell tempCell = Cell();
+        for( var colCount = 0; colCount<canvasSize; colCount++ ){
+          Cell tempCell = Cell( rowCount, colCount, canvasSize );
           listOfCells.add( tempCell );
         }
-        Row tempRow = Row( child : listOfCells );
-        listOfRows.add( tempRow );
+        listOfRows.add( listOfCells );
       }
       return Column( children : listOfRows );
     }
-	}
 }
+*/
 
 
