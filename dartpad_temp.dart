@@ -13,7 +13,7 @@ class MainApp extends StatelessWidget {
 		           home: Scaffold(
 		               body:  Center(
                      child : Expanded (
-                       child: Cell()                       
+                       child: Canvas(8)                       
                      )	                   
 		               )
 		            ),
@@ -21,13 +21,17 @@ class MainApp extends StatelessWidget {
 	}
 }
 
-class Cell extends StatefulWidget{
-  Cell(/*this.row, this.col, this.canvasSize, */{super.key});
- /* 
+class CellData {
+  CellData(this.row, this.col, /*this.canvasSize*/);
+ 
   final int row ;
   final int col ;
-  final int canvasSize ;
-*/  
+}
+
+class Cell extends StatefulWidget{
+  Cell(this.cellData, /*this.canvasSize,*/{super.key});
+ 
+  final CellData cellData;  
   @override
   State<Cell> createState() => _CellState();
 }
@@ -37,7 +41,7 @@ class _CellState extends State<Cell> {
   bool isPlaced = false ;
   
   Color decodeState( String state ){
-    Color result = Colors.white ;
+    Color result = Colors.yellow ;
     
     if( state == 'WITHQUEEN' ){
       result = Colors.green ;
@@ -59,42 +63,62 @@ class _CellState extends State<Cell> {
         onTap : () { 
           setState( () { 
             state = (state == 'WITHQUEEN') ? 'DEFAULT' : 'WITHQUEEN' ;
-            /*if( state == 'WITHQUEEN' ){
-              state = 'DEFAULT' ;
-            }
-            else {
-              state = 'WITHQUEEN';
-              
-            }*/
-          }); 
+           }); 
         } 
       )                  
    ); 
 }
 }
 
-/*
-class Canvas extends StatelessWidget{
+
+class Canvas extends StatefulWidget{
     final int canvasSize;
-    
+  
     Canvas( this.canvasSize, {
         super.key }
     )
+      
+    @override
+    State<Canvas> createState( ) => _CanvasState( );
+}
+
+class _CanvasState extends State<Canvas>{
+  late List<List<CellData>> canvas ;
   
+  @override
+  void initState() {
+    super.initState();
+    canvas = _initCanvas();
+  }
+   
+  List<List<CellData>> _initCanvas( ){
+    List<List<CellData>> result = [];
+    for( var row = 0; row < widget.canvasSize; row++  ){
+      List<CellData> tempRow = [];
+      for( var col = 0; col < widget.canvasSize; col++  ){
+        tempRow.add( CellData( row, col ) );
+      }
+      result.add( tempRow );
+    }
+    return result ;
+  } 
+
     @override
     Widget build( BuildContext context ){
-      List<List<Cell>> listOfRows = [ ];
-      for( var rowCount = 0; rowCount<canvasSize; rowCount++ ){
-        List<Cell> listOfCells = [ ];
-        for( var colCount = 0; colCount<canvasSize; colCount++ ){
-          Cell tempCell = Cell( rowCount, colCount, canvasSize );
-          listOfCells.add( tempCell );
+      List< Row > columnChildren = [];
+      for( var row = 0; row < widget.canvasSize; row++  ){
+        List< Row > tempRowChildren = [];
+        for( var col = 0; col < widget.canvasSize; col++  ){
+          Row cellBlock = Row(
+              children : [ SizedBox( width : 10 ), Cell( canvas[row][col] )] 
+            );
+          tempRowChildren.add( cellBlock ) ;
         }
-        listOfRows.add( listOfCells );
+        Row tempRow = Row( children : tempRowChildren );
+        columnChildren.add( tempRow ) ;
       }
-      return Column( children : listOfRows );
-    }
-}
-*/
+     return Column( children : columnChildren ) ;
+  }
 
+}
 
