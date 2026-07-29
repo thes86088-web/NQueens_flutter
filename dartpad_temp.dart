@@ -72,6 +72,7 @@ class _CellState extends State<Cell> {
         ),
       child : GestureDetector(
         onTap : () { 
+          widget.triggerChanges( widget.cellData.row, widget.cellData.col );
           setState( () { 
             widget.cellData.stateString = 
             ( widget.cellData.stateString == 'Q') ? 'D' : 'Q' ;
@@ -118,15 +119,20 @@ class _CanvasState extends State<Canvas>{
   
   void highlightAttackableCells( int epicenterRow, int epicenterCol ){
     List<List<CellData>> newCanvasData = [];
-    for( int row = 0; row < epicenterRow ; row++ ){
+    for( int row = 0; row < widget.canvasSize ; row++ ){
       List<CellData> newTempRow = [];
-      for( int col = 0; col < epicenterCol; col++ ){
+      for( int col = 0; col < widget.canvasSize; col++ ){
         CellData tempCellData = CellData( row, col, 'D' );
-        if( row == epicenterRow || col == epicenterCol ){
-           if( canvasData[row][col].stateString == 'D' ) {
+        if( canvasData[row][col].stateString == 'D' ){
+           if( row == epicenterRow || col == epicenterCol ) {
              tempCellData.stateString = 'A' ;
              //newCanvasData[row][col].stateString = 'A'; 
            }
+        }
+        else{
+          if( canvasData[row][col].stateString == 'Q' ){
+            tempCellData.stateString = 'Q' ;
+          }
         }
         newTempRow.add( tempCellData );
       }
